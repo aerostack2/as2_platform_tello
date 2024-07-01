@@ -1,4 +1,4 @@
-// Copyright 2024 Universidad Politécnica de Madrid
+// Copyright 2023 Universidad Politécnica de Madrid
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -10,7 +10,8 @@
 //      notice, this list of conditions and the following disclaimer in the
 //      documentation and/or other materials provided with the distribution.
 //
-//    * Neither the name of the Universidad Politécnica de Madrid nor the names of its
+//    * Neither the name of the Universidad Politécnica de Madrid nor the names
+//    of its
 //      contributors may be used to endorse or promote products derived from
 //      this software without specific prior written permission.
 //
@@ -27,29 +28,42 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 /**
- * @file tello_test.cpp
+ * @file tello_upd_connection_test.cpp
  *
- * Test for the Tello class.
+ * Tello connection test
  *
- * @authors Daniel Fernández Sánchez
+ * @author Rafael Perez-Segui <r.psegui@upm.es>
  */
 
-#include "tello.hpp"
+#include <chrono>
+#include <thread>
+#include <memory>
+#include <iostream>
+#include "tello/socket_udp.hpp"
 
-
-int main(int argc, char ** argv)
+int main()
 {
-  (void)argc;
-  (void)argv;
-  Tello * tello;
-  tello = new Tello;
+  tello::SocketUDP tello_command_socket("192.168.10.1", 8889, 8889);
+  // Send command and wait for response
+  std::string response;
+  if (tello_command_socket.send("command", response, 5000)) {
+    std::cout << "Received response: " << response << std::endl;
+  } else {
+    std::cout << "Failed to send command" << std::endl;
+  }
 
-  tello->sendCommand("takeoff");
-  sleep(2);
-  std::cout << tello->speedMotion(0, 0, 0, 30) << std::endl;
-  sleep(2);
-  tello->sendCommand("land");
-  sleep(5);
+  tello::SocketUDP tello_state_socket("0.0.0.0", 8890, 8890);
+  int cont = 10;
+  // Receive state
+  std::string state;
+  while (cont > 0) {
+    if (tello_state_socket.receive(state, -1)) {
+      std::cout << "Received state: " << state << std::endl;
+      cont -= 1;
+    } else {
+      std::cout << "Couldnt received state" << std::endl;
+    }
+  }
 
   return 0;
 }

@@ -1,7 +1,44 @@
 /**:
   ros__parameters:
-    cmd_freq: 100.0  # Hz of platform commands send
+    cmd_freq: 10.0  # Hz of platform commands send
     info_freq: 10.0  # Hz of platform info publish
-    sensor_freq: 10.0  # Hz of platform sensor publish
-    camera_freq: 30.0  # Hz of platform camera publish
-    
+    ping_freq: 0.5  # Hz of platform ping
+    state_freq: 10.0  # Hz of tello state receive
+    tello_ip: "192.168.10.1" # IP of platform command
+    port_command: 8889  # Port of platform command
+    port_state: 8890  # Port of tello
+    tello_state_topic: "_tello_state"  # Topic of tello state for debug
+    tf_timeout_threshold: 0.5  # Threshold of tf timeout in seconds
+    camera: # Camera configuration
+      enable: true  # Enable camera
+      freq: 30.0  # Hz of platform camera publish
+      stream_url: "udp://0.0.0.0:11111" # URL of video stream
+      # Camera configuration
+      camera_transform:
+        parent_frame: "base_link" # Parent frame of the camera
+        x: 0.035 # Translation in x (m)
+        y: 0.0 # Translation in y (m)
+        z: 0.0 # Translation in z (m)
+        roll: -1.57079632679 # Rotation around x (rad)
+        pitch: 0.0 # Rotation around y (rad)
+        yaw: -1.57079632679 # Rotation around z (rad)
+      image_width: 960 # Image width (px)
+      image_height: 720 # Image height (px)
+      camera_name: tello_camera # Camera name
+      camera_matrix: 
+        rows: 3
+        cols: 3
+        data: [917.648825, 0.000000, 479.853110, 0.000000, 917.648825, 357.144120, 0.000000, 0.000000, 1.000000] # Camera matrix
+      distortion_model: plumb_bob # Distortion model
+      distortion_coefficients:
+        rows: 1
+        cols: 5
+        data: [-0.041948, 0.048619, -0.022789, -0.004038, 0.000000] # Distortion coefficients
+      rectification_matrix:
+        rows: 3
+        cols: 3
+        data: [1.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000, 0.000000, 1.000000] # Rectification matrix
+      projection_matrix:
+        rows: 3
+        cols: 4
+        data: [917.648825, 0.000000, 479.853110, 0.000000, 0.000000, 917.648825, 357.144120, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000] # Projection matrix

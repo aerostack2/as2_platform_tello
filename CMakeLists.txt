@@ -7,8 +7,9 @@ if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 17)
 endif()
 
-if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic)
+# Set Release as default build type if not set
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release)
 endif()
 
 # find dependencies
@@ -33,10 +34,10 @@ foreach(DEPENDENCY ${PROJECT_DEPENDENCIES})
   find_package(${DEPENDENCY} REQUIRED)
 endforeach()
 
-add_subdirectory(tello)
-
 set(SOURCE_CPP_FILES
-  src/tello_platform.cpp
+  src/as2_platform_tello.cpp
+  src/tello/tello.cpp
+  src/tello/socket_udp.cpp
 )
 
 include_directories(
@@ -46,26 +47,48 @@ include_directories(
 )
 
 # Add the exacutables
-add_executable(${PROJECT_NAME}_node src/tello_platform_node.cpp ${SOURCE_CPP_FILES})
+add_executable(${PROJECT_NAME}_node src/as2_platform_tello_node.cpp ${SOURCE_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME}_node ${PROJECT_DEPENDENCIES})
 target_link_libraries(${PROJECT_NAME}_node
   ${OpenCV_LIBS}
-  tello
 )
 
+# # Create the dynamic library
+# set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+add_library(${PROJECT_NAME} STATIC ${SOURCE_CPP_FILES})
+ament_target_dependencies(${PROJECT_NAME} ${PROJECT_DEPENDENCIES})
+
+# Install the headers
+install(
+  DIRECTORY include/
+  DESTINATION include
+)
+
+# Install the node executable
+install(TARGETS
+  ${PROJECT_NAME}_node
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+# Install the library
+install(
+  TARGETS ${PROJECT_NAME}
+  EXPORT export_${PROJECT_NAME}
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+)
+
+# Install the launch directory
 install(DIRECTORY
   launch
   DESTINATION share/${PROJECT_NAME}
 )
 
+# Install the config directory
 install(DIRECTORY
   config
   DESTINATION share/${PROJECT_NAME}
-)
-
-install(TARGETS
-  ${PROJECT_NAME}_node
-  DESTINATION lib/${PROJECT_NAME}
 )
 
 # Build tests if testing is enabled

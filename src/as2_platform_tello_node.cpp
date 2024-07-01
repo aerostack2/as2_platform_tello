@@ -27,65 +27,30 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 /**
- * @file client_udp.cpp
+ * @file tello_platform_node.cpp
  *
- * Client side implementation of UDP client-server model.
+ * Implements ros2 node for the tello drone.
  *
  * @authors Daniel Fernández Sánchez
+ *          Pedro Arias Pérez
+ *          Miguel Fernández Cortizas
+ *          Rafael Pérez Seguí
  */
 
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <string.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <iostream>
-#include <string>
-#include <vector>
+#include "as2_core/core_functions.hpp"
+#include "as2_platform_tello/as2_platform_tello.hpp"
 
-#define PORT 8889
-#define MAXLINE 1024
-
-// Driver code
-int main()
+int main(int argc, char * argv[])
 {
-  int sockfd;
-  char buffer[MAXLINE];
-  std::vector<unsigned char> buffer2;
-  buffer2.resize(MAXLINE, '\0');
-  char * hello = "command";
-  sockaddr_in servaddr;
-  char * IP = "192.168.10.1";
-  // Creating socket file descriptor
-  if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
-    perror("socket creation failed");
-    exit(EXIT_FAILURE);
-  }
+  rclcpp::init(argc, argv);
 
-  memset(&servaddr, 0, sizeof(servaddr));
+  auto tello_node = std::make_shared<as2_tello_platform::TelloPlatform>();
+  // tello_node->preset_loop_frequency(200);
+  // as2::spinLoop(tello_node);
+  rclcpp::spin(tello_node);
 
-  // Filling server information
-  servaddr.sin_family = AF_INET;
-  servaddr.sin_port = htons(PORT);
-  servaddr.sin_addr.s_addr = inet_addr(IP);
-
-  int n, len;
-
-  sendto(
-    sockfd, (const char *)hello, strlen(hello), MSG_CONFIRM,
-    reinterpret_cast<sockaddr *>(&servaddr), sizeof(servaddr));
-  std::cout << "Hello message sent." << std::endl;
-  socklen_t * addrlen;
-  n = recvfrom(
-    sockfd, buffer2.data(), MAXLINE, MSG_WAITALL,
-    reinterpret_cast<sockaddr *>(&servaddr), addrlen);
-  buffer[n] = '\0';
-  std::cout << "Server : ";
-  for (int i = 0; i < buffer2.size(); i++) {
-    std::cout << buffer2[i];
-  }
-  std::cout << std::endl;
-  close(sockfd);
+  tello_node->~TelloPlatform();
+  tello_node.reset();
+  rclcpp::shutdown();
   return 0;
 }
