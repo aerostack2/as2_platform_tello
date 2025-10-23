@@ -3,7 +3,7 @@ file(GLOB TEST_SOURCE "*_test.cpp")
 
 if(TEST_SOURCE)
   find_package(ament_index_cpp REQUIRED)
-  
+
   foreach(TEST_FILE ${TEST_SOURCE})
     get_filename_component(TEST_NAME ${TEST_FILE} NAME_WE)
 
