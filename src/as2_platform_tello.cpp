@@ -60,16 +60,10 @@ TelloPlatform::TelloPlatform(const rclcpp::NodeOptions & options)
 : as2::AerialPlatform(options), tf_handler_(this)
 {
   // Get Tello parameters
-  std::string tello_ip;
-  int port_command, port_command_client, port_state;
-  this->declare_parameter<std::string>("tello_ip", "192.168.10.1");
-  this->declare_parameter<int>("port_command", 8889);
-  this->declare_parameter<int>("port_command_client", 8889);
-  this->declare_parameter<int>("port_state", 8890);
-  this->get_parameter("tello_ip", tello_ip);
-  this->get_parameter("port_command", port_command);
-  this->get_parameter("port_command_client", port_command_client);
-  this->get_parameter("port_state", port_state);
+  const std::string tello_ip = this->getParameter<std::string>("tello_ip", "192.168.10.1");
+  const int port_command = this->getParameter<int>("port_command", 8889);
+  const int port_command_client = this->getParameter<int>("port_command_client", 8889);
+  const int port_state = this->getParameter<int>("port_state", 8890);
 
   // Connect to Tello
   RCLCPP_INFO(
@@ -90,23 +84,20 @@ TelloPlatform::TelloPlatform(const rclcpp::NodeOptions & options)
 
   // Get tf timeout
   double tf_timeout_threshold;
-  this->declare_parameter<double>("tf_timeout_threshold", 0.1);
-  this->get_parameter("tf_timeout_threshold", tf_timeout_threshold);
+  tf_timeout_threshold = this->getParameter<double>("tf_timeout_threshold", 0.1);
   tf_timeout_ = std::chrono::duration_cast<std::chrono::nanoseconds>(
     std::chrono::duration<double>(tf_timeout_threshold));
 
   // State read timer
   double state_read_freq;
-  this->declare_parameter<double>("state_read_freq", 10.0);
-  this->get_parameter("state_read_freq", state_read_freq);
+  state_read_freq = this->getParameter<double>("state_read_freq", 10.0);
   state_read_timer_ = this->create_timer(
     std::chrono::duration<double>(1.0 / state_read_freq),
     std::bind(&TelloPlatform::readStateTimerCallback, this));
 
   // Ping timer
   double ping_freq;
-  this->declare_parameter<double>("ping_freq", 0.5);
-  this->get_parameter("ping_freq", ping_freq);
+  ping_freq = this->getParameter<double>("ping_freq", 0.5);
   ping_timer_ = this->create_timer(
     std::chrono::duration<double>(1.0 / ping_freq),
     std::bind(&TelloPlatform::pingTimerCallback, this));
@@ -118,12 +109,10 @@ TelloPlatform::TelloPlatform(const rclcpp::NodeOptions & options)
 
   // Video stream timer
   bool enable_video_stream;
-  this->declare_parameter<bool>("camera.enable", false);
-  this->get_parameter("camera.enable", enable_video_stream);
+  enable_video_stream = this->getParameter<bool>("camera.enable", false);
   if (enable_video_stream) {
     double camera_freq;
-    this->declare_parameter<double>("camera.freq", 10.0);
-    this->get_parameter("camera.freq", camera_freq);
+    camera_freq = this->getParameter<double>("camera.freq", 10.0);
     video_stream_timer_ = this->create_timer(
       std::chrono::duration<double>(1.0 / camera_freq),
       std::bind(&TelloPlatform::readCameraTimerCallback, this));
@@ -132,12 +121,8 @@ TelloPlatform::TelloPlatform(const rclcpp::NodeOptions & options)
     camera_ptr_ = std::make_shared<as2::sensors::Camera>(this, "camera");
 
     // Enable video stream
-    std::string stream_ip;
-    uint16_t stream_port;
-    this->declare_parameter<std::string>("camera.stream_ip", "0.0.0.0");
-    this->declare_parameter<uint16_t>("camera.stream_port", 11111);
-    this->get_parameter("camera.stream_ip", stream_ip);
-    this->get_parameter("camera.stream_port", stream_port);
+    const std::string stream_ip = this->getParameter<std::string>("camera.stream_ip", "0.0.0.0");
+    const uint16_t stream_port = this->getParameter<uint16_t>("camera.stream_port", 11111);
 
     std::string stream_url = "udp://" + stream_ip + ":" + std::to_string(stream_port);
 
@@ -163,8 +148,7 @@ void TelloPlatform::configureSensors()
 {
   // Tello state publisher
   std::string tello_state_topic = "_tello_state";
-  this->declare_parameter<std::string>("tello_state_topic", tello_state_topic);
-  this->get_parameter("tello_state_topic", tello_state_topic);
+  tello_state_topic = this->getParameter<std::string>("tello_state_topic", tello_state_topic);
   tello_state_pub_ = this->create_publisher<std_msgs::msg::String>(
     tello_state_topic, 10);
 
