@@ -15,7 +15,7 @@
       stream_url: "udp://0.0.0.0:11111" # URL of video stream
       # Camera configuration
       camera_transform:
-        parent_frame: "base_link" # Parent frame of the camera
+        parent_frame: ""  # Parent frame of the camera. Empty takes the node base frame
         x: 0.035 # Translation in x (m)
         y: 0.0 # Translation in y (m)
         z: 0.0 # Translation in z (m)

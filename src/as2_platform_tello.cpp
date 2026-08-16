@@ -103,8 +103,8 @@ TelloPlatform::TelloPlatform(const rclcpp::NodeOptions & options)
     std::bind(&TelloPlatform::pingTimerCallback, this));
 
   // TF frames id
-  odom_frame_id_ = as2::tf::generateTfName(this, "odom");
-  base_link_frame_id_ = as2::tf::generateTfName(this, "base_link");
+  odom_frame_id_ = this->getOdomFrameId();
+  base_link_frame_id_ = this->getBaseFrameId();
   imu_frame_id_ = as2::tf::generateTfName(this, "imu");
 
   // Video stream timer
