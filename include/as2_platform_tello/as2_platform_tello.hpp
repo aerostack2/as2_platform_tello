@@ -154,8 +154,6 @@ private:
   std::shared_ptr<as2::sensors::Camera> camera_ptr_;
 
   // tf handler
-  as2::tf::TfHandler tf_handler_;
-  std::chrono::nanoseconds tf_timeout_;
   std::string odom_frame_id_;
   std::string base_link_frame_id_;
 

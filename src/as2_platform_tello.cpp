@@ -57,7 +57,7 @@ namespace as2_tello_platform
 {
 
 TelloPlatform::TelloPlatform(const rclcpp::NodeOptions & options)
-: as2::AerialPlatform(options), tf_handler_(this)
+: as2::AerialPlatform(options)
 {
   // Get Tello parameters
   const std::string tello_ip = this->getParameter<std::string>("tello_ip", "192.168.10.1");
@@ -83,10 +83,6 @@ TelloPlatform::TelloPlatform(const rclcpp::NodeOptions & options)
   RCLCPP_INFO(this->get_logger(), "Reading Tello State from :%d", port_state);
 
   // Get tf timeout
-  double tf_timeout_threshold;
-  tf_timeout_threshold = this->getParameter<double>("tf_timeout_threshold", 0.1);
-  tf_timeout_ = std::chrono::duration_cast<std::chrono::nanoseconds>(
-    std::chrono::duration<double>(tf_timeout_threshold));
 
   // State read timer
   double state_read_freq;
@@ -182,24 +178,6 @@ bool TelloPlatform::ownSendCommand()
         return true;
         break;
       }
-    case as2_msgs::msg::ControlMode::POSITION:
-      {
-        // TODO(RPS98): Test this
-        RCLCPP_ERROR(this->get_logger(), "Position control not implemented");
-        geometry_msgs::msg::PoseStamped pose_msg = tf_handler_.convert(
-          command_pose_msg_, base_link_frame_id_, tf_timeout_);
-        yaw = as2::frame::getYawFromQuaternion(pose_msg.pose.orientation);
-
-        // TODO(RPS98): Avoid sending the same position multiple times
-        if (!tello_command_sender_ptr_->positionMotionCommand(
-            pose_msg.pose.position.x, pose_msg.pose.position.y, pose_msg.pose.position.z,
-            getSpeedLimit()))
-        {
-          RCLCPP_ERROR(this->get_logger(), "Error sending Position control command");
-          return false;
-        }
-        break;
-      }
     case as2_msgs::msg::ControlMode::SPEED:
       {
         vx = command_twist_msg_.twist.linear.x;  // m/s
@@ -258,6 +236,10 @@ bool TelloPlatform::ownSetPlatformControlMode(const as2_msgs::msg::ControlMode &
   RCLCPP_DEBUG(
     this->get_logger(), "New control mode: %s",
     as2::control_mode::controlModeToString(msg).c_str());
+
+  // speedMotionCommand() takes body frame velocities
+  setCommandPoseFrameId(base_link_frame_id_);
+  setCommandTwistFrameId(base_link_frame_id_);
   return true;
 }
 
