@@ -8,7 +8,6 @@
     port_command: 8889  # Port of platform command
     port_state: 8890  # Port of tello
     tello_state_topic: "_tello_state"  # Topic of tello state for debug
-    tf_timeout_threshold: 0.5  # Threshold of tf timeout in seconds
     camera: # Camera configuration
       enable: true  # Enable camera
       freq: 30.0  # Hz of platform camera publish

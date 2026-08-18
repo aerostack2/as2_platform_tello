@@ -144,7 +144,6 @@ int platform_test()
   // as2_msgs::msg::ControlMode desired_control_mode;
   // desired_control_mode.control_mode = as2_msgs::msg::ControlMode::SPEED;
   // desired_control_mode.yaw_mode = as2_msgs::msg::ControlMode::YAW_SPEED;
-  // desired_control_mode.reference_frame = as2_msgs::msg::ControlMode::LOCAL_ENU_FRAME;
   // if (!test_node->setControlMode(desired_control_mode, false)) {
   //   return 1;
   // }
@@ -181,7 +180,6 @@ int platform_test()
   // as2_msgs::msg::ControlMode desired_hover_control_mode;
   // desired_hover_control_mode.control_mode = as2_msgs::msg::ControlMode::HOVER;
   // desired_hover_control_mode.yaw_mode = as2_msgs::msg::ControlMode::UNSET;
-  // desired_hover_control_mode.reference_frame = as2_msgs::msg::ControlMode::UNSET;
   // if (!test_node->setControlMode(desired_hover_control_mode, false)) {
   //   return 1;
   // }
